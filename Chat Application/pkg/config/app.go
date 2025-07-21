@@ -28,9 +28,9 @@ func Connect() {
 	fmt.Println("Attempting to connect to the database...") // Debug log
 
 	//local
-	d, err := gorm.Open("mysql", "root:Alohomora9*@tcp(127.0.0.1:3306)/testdb?charset=utf8&parseTime=True&loc=Local")
+	//d, err := gorm.Open("mysql", "root:Alohomora9*@tcp(127.0.0.1:3306)/testdb?charset=utf8&parseTime=True&loc=Local")
 	//root:aDnJDdqULNszDrrzltxgCqGVSMHSNoJc@mysql.railway.internal:3306/railway
-
+	d, err := gorm.Open("mysql", "root:aDnJDdqULNszDrrzltxgCqGVSMHSNoJc@tcp(mysql.railway.internal:3306)/railway?charset=utf8&parseTime=True&loc=Local")
 	//"root:aDnJDdqULNszDrrzltxgCqGVSMHSNoJc@tcp(mysql.railway.internal:3306)/railway?charset=utf8&parseTime=True&loc=Local"
 
 	//d, err := gorm.Open("mysql", "root:aDnJDdqULNszDrrzltxgCqGVSMHSNoJc@tcp(mysql.railway.internal:3306)/railway?charset=utf8&parseTime=True&loc=Local")
