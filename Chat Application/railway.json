@@ -1,0 +1,5 @@
+{
+  "build": {
+    "startCommand": "go run cmd/main/main.go"
+  }
+}
