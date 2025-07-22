@@ -48,7 +48,7 @@ func main() {
 	handler := c.Handler(router)
 
 	log.Println("Starting server on localhost:8080...")
-	//log.Fatal(http.ListenAndServe("localhost:8080", handler)) // Use mux router here
-	log.Fetal(http.ListenAndServe("0.0.0.0:8080", handler))
+	log.Fatal(http.ListenAndServe("localhost:8080", handler)) // Use mux router here
+	//log.Fetal(http.ListenAndServe("0.0.0.0:8080", handler))
 
 }
