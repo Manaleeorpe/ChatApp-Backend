@@ -12,6 +12,15 @@ import (
 )
 
 var DB *gorm.DB
+var GoogleClientID string
+var GoogleClientSecret string
+
+func init() {
+	_ = godotenv.Load(".env") // Load .env file
+	GoogleClientID = os.Getenv("GOOGLE_CLIENT_ID")
+	GoogleClientSecret = os.Getenv("GOOGLE_CLIENT_SECRET")
+	log.Println("Loaded Google Client ID:", GoogleClientID)
+}
 
 func Connect() {
 	rawURL := os.Getenv("SQL_URL")
@@ -42,3 +51,4 @@ func Connect() {
 
 	log.Println("Connected to MySQL!")
 }
+
