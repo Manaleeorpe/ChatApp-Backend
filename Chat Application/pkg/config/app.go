@@ -9,6 +9,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/joho/godotenv"
 )
 
 var DB *gorm.DB
@@ -51,4 +52,5 @@ func Connect() {
 
 	log.Println("Connected to MySQL!")
 }
+
 
