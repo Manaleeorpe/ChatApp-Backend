@@ -12,7 +12,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var DB *gorm.DB
+var db *gorm.DB
 var GoogleClientID string
 var GoogleClientSecret string
 
@@ -45,7 +45,7 @@ func Connect() {
 		user, pass, hostPort, dbname)
 
 	// Open connection
-	DB, err = gorm.Open("mysql", dsn)
+	db, err = gorm.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal("Failed to connect database:", err)
 	}
@@ -55,6 +55,4 @@ func Connect() {
 func GetDB() *gorm.DB {
 	return db
 }
-
-
 
