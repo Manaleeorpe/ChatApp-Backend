@@ -52,5 +52,9 @@ func Connect() {
 
 	log.Println("Connected to MySQL!")
 }
+func GetDB() *gorm.DB {
+	return db
+}
+
 
 
