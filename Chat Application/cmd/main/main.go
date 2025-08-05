@@ -49,14 +49,15 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-	    port = "8080" // fallback for local dev
+		port = "3000"
 	}
-	
-	log.Println("Starting server on localhost:", port)
-	http.ListenAndServe("0.0.0.0:" + port, handler)
+
+	log.Printf("Starting server on 0.0.0.0:%s...\n", port)
+	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, handler))
 
 	
 	//log.Fatal(http.ListenAndServe("localhost:8080", handler)) // Use mux router here
 	//log.Fetal(http.ListenAndServe("0.0.0.0:8080", handler))
 
 }
+
