@@ -1,49 +1,41 @@
 package config
 
 import (
-	"fmt"
-	"log"
-	"os"
+    "fmt"
+    "log"
+    "net/url"
+    "os"
+    "strings"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/joho/godotenv"
+    "gorm.io/driver/mysql"
+    "gorm.io/gorm"
 )
 
-var (
-	db *gorm.DB
-)
-var GoogleClientID string
-var GoogleClientSecret string
+var DB *gorm.DB
 
-func init() {
-	_ = godotenv.Load(".env") // Load .env file
-	GoogleClientID = os.Getenv("GOOGLE_CLIENT_ID")
-	GoogleClientSecret = os.Getenv("GOOGLE_CLIENT_SECRET")
-	log.Println("Loaded Google Client ID:", GoogleClientID)
-}
-
-// Connect to the database
 func Connect() {
-	fmt.Println("Attempting to connect to the database...") // Debug log
+    rawURL := os.Getenv("SQl_URL")
+    if rawURL == "" {
+        log.Fatal("SQl_URL not set")
+    }
 
-	//local
-	//d, err := gorm.Open("mysql", "root:Alohomora9*@tcp(127.0.0.1:3306)/testdb?charset=utf8&parseTime=True&loc=Local")
-	//root:aDnJDdqULNszDrrzltxgCqGVSMHSNoJc@mysql.railway.internal:3306/railway
-	d, err := gorm.Open("mysql", "root:aDnJDdqULNszDrrzltxgCqGVSMHSNoJc@tcp(mysql.railway.internal:3306)/railway?charset=utf8&parseTime=True&loc=Local")
-	//"root:aDnJDdqULNszDrrzltxgCqGVSMHSNoJc@tcp(mysql.railway.internal:3306)/railway?charset=utf8&parseTime=True&loc=Local"
+    u, err := url.Parse(rawURL)
+    if err != nil {
+        log.Fatal("Invalid SQl_URL:", err)
+    }
 
-	//d, err := gorm.Open("mysql", "root:aDnJDdqULNszDrrzltxgCqGVSMHSNoJc@tcp(mysql.railway.internal:3306)/railway?charset=utf8&parseTime=True&loc=Local")
-	//dsn := "root:aDnJDdqULNszDrrzltxgCqGVSMHSNoJc@tcp(gondola.proxy.rlwy.net:33106)/railway?charset=utf8&parseTime=True&loc=Local"
-	//d, err := gorm.Open("mysql", dsn)
+    user := u.User.Username()
+    pass, _ := u.User.Password()
+    hostPort := u.Host
+    dbname := strings.TrimPrefix(u.Path, "/")
 
-	if err != nil {
-		panic("failed to connect to the database: " + err.Error())
-	}
-	fmt.Println("Connected to database")
-	db = d
-}
+    // Build DSN for MySQL driver
+    dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+        user, pass, hostPort, dbname)
 
-func GetDB() *gorm.DB {
-	return db
+    DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+    if err != nil {
+        log.Fatal("Failed to connect database:", err)
+    }
+    log.Println("Connected to MySQL!")
 }
