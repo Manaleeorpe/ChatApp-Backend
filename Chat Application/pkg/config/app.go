@@ -22,44 +22,96 @@ func init() {
 }
 
 func Connect() {
-	// Try MYSQL_URL first as it contains all connection details
-	mysqlURL := os.Getenv("MYSQL_URL")
-	if mysqlURL != "" {
-		log.Printf("Found MYSQL_URL, attempting to connect...")
-		var err error
-		db, err = gorm.Open("mysql", mysqlURL)
-		if err != nil {
-			log.Printf("Failed to connect using MYSQL_URL: %v, falling back to individual credentials", err)
-		} else {
-			log.Println("Connected to MySQL using URL!")
-			return
-		}
-	}
+	log.Println("\n=== DATABASE CONNECTION DEBUGGING ===")
 
-	// Fallback to individual variables if URL doesn't work
-	dbUser := os.Getenv("MYSQL_USER") // Try with underscore
+	// Check all possible MySQL URL variables
+	log.Println("\n1. Checking URL variables:")
+	log.Printf("MYSQL_URL: '%s'", os.Getenv("MYSQL_URL"))
+	log.Printf("MYSQL_PUBLIC_URL: '%s'", os.Getenv("MYSQL_PUBLIC_URL"))
+
+	// Check Railway system variables
+	log.Println("\n2. Checking Railway system variables:")
+	log.Printf("RAILWAY_TCP_PROXY_DOMAIN: '%s'", os.Getenv("RAILWAY_TCP_PROXY_DOMAIN"))
+	log.Printf("RAILWAY_TCP_PROXY_PORT: '%s'", os.Getenv("RAILWAY_TCP_PROXY_PORT"))
+	log.Printf("RAILWAY_PRIVATE_DOMAIN: '%s'", os.Getenv("RAILWAY_PRIVATE_DOMAIN"))
+
+	// Check all possible user/password variables
+	log.Println("\n3. Checking authentication variables:")
+	log.Printf("MYSQLUSER: '%s'", os.Getenv("MYSQLUSER"))
+	log.Printf("MYSQL_ROOT_PASSWORD exists: %v", os.Getenv("MYSQL_ROOT_PASSWORD") != "")
+	log.Printf("MYSQLPASSWORD exists: %v", os.Getenv("MYSQLPASSWORD") != "")
+
+	// Check all possible host/port variables
+	log.Println("\n4. Checking connection variables:")
+	log.Printf("MYSQLHOST: '%s'", os.Getenv("MYSQLHOST"))
+	log.Printf("MYSQLPORT: '%s'", os.Getenv("MYSQLPORT"))
+
+	// Check all possible database name variables
+	log.Println("\n5. Checking database name variables:")
+	log.Printf("MYSQL_DATABASE: '%s'", os.Getenv("MYSQL_DATABASE"))
+	log.Printf("MYSQLDATABASE: '%s'", os.Getenv("MYSQLDATABASE"))
+
+	log.Println("\n=== STARTING CONNECTION ATTEMPT ===")
+
+	// Get MySQL credentials from Railway
+	dbUser := os.Getenv("MYSQLUSER")
 	if dbUser == "" {
-		dbUser = os.Getenv("MYSQLUSER") // Try without underscore
+		log.Println("❌ No MYSQLUSER found")
+	} else {
+		log.Printf("✅ Found MYSQLUSER: %s", dbUser)
 	}
 
 	dbPass := os.Getenv("MYSQL_ROOT_PASSWORD")
 	if dbPass == "" {
+		log.Println("❌ No MYSQL_ROOT_PASSWORD found, trying MYSQLPASSWORD")
 		dbPass = os.Getenv("MYSQLPASSWORD")
+		if dbPass == "" {
+			log.Println("❌ No MYSQLPASSWORD found either")
+		} else {
+			log.Println("✅ Found MYSQLPASSWORD")
+		}
+	} else {
+		log.Println("✅ Found MYSQL_ROOT_PASSWORD")
 	}
 
-	dbHost := os.Getenv("MYSQL_HOST") // Try with underscore
+	// Use Railway's TCP Proxy for connection
+	dbHost := os.Getenv("RAILWAY_TCP_PROXY_DOMAIN")
 	if dbHost == "" {
-		dbHost = os.Getenv("MYSQLHOST") // Try without underscore
+		log.Println("❌ No RAILWAY_TCP_PROXY_DOMAIN found, trying MYSQLHOST")
+		dbHost = os.Getenv("MYSQLHOST")
+		if dbHost == "" {
+			log.Println("❌ No MYSQLHOST found either")
+		} else {
+			log.Printf("✅ Found MYSQLHOST: %s", dbHost)
+		}
+	} else {
+		log.Printf("✅ Found RAILWAY_TCP_PROXY_DOMAIN: %s", dbHost)
 	}
 
-	dbPort := os.Getenv("MYSQL_PORT") // Try with underscore
+	dbPort := os.Getenv("RAILWAY_TCP_PROXY_PORT")
 	if dbPort == "" {
-		dbPort = os.Getenv("MYSQLPORT") // Try without underscore
+		log.Println("❌ No RAILWAY_TCP_PROXY_PORT found, trying MYSQLPORT")
+		dbPort = os.Getenv("MYSQLPORT")
+		if dbPort == "" {
+			log.Println("❌ No MYSQLPORT found either")
+		} else {
+			log.Printf("✅ Found MYSQLPORT: %s", dbPort)
+		}
+	} else {
+		log.Printf("✅ Found RAILWAY_TCP_PROXY_PORT: %s", dbPort)
 	}
 
-	dbName := os.Getenv("MYSQL_DATABASE") // Try with underscore
+	dbName := os.Getenv("MYSQL_DATABASE")
 	if dbName == "" {
-		dbName = os.Getenv("MYSQLDATABASE") // Try without underscore
+		log.Println("❌ No MYSQL_DATABASE found, trying MYSQLDATABASE")
+		dbName = os.Getenv("MYSQLDATABASE")
+		if dbName == "" {
+			log.Println("❌ No MYSQLDATABASE found either")
+		} else {
+			log.Printf("✅ Found MYSQLDATABASE: %s", dbName)
+		}
+	} else {
+		log.Printf("✅ Found MYSQL_DATABASE: %s", dbName)
 	}
 
 	// Debug logging
