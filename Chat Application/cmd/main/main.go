@@ -40,7 +40,7 @@ func main() {
 	routes.RegisterGoogleAuthstoreRoutes(router)
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000"}, // React dev server
+		AllowedOrigins:   []string{"*"}, // Allow all origins for testing
 		AllowCredentials: true,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"*"},
