@@ -22,16 +22,44 @@ func init() {
 }
 
 func Connect() {
-	// Using exact variable names from Railway configuration
-	dbUser := os.Getenv("MYSQLUSER")
-	dbPass := os.Getenv("MYSQL_ROOT_PASSWORD") // Changed to use root password
-	dbHost := os.Getenv("MYSQLHOST")
-	dbPort := os.Getenv("MYSQLPORT")
+	// Try MYSQL_URL first as it contains all connection details
+	mysqlURL := os.Getenv("MYSQL_URL")
+	if mysqlURL != "" {
+		log.Printf("Found MYSQL_URL, attempting to connect...")
+		var err error
+		db, err = gorm.Open("mysql", mysqlURL)
+		if err != nil {
+			log.Printf("Failed to connect using MYSQL_URL: %v, falling back to individual credentials", err)
+		} else {
+			log.Println("Connected to MySQL using URL!")
+			return
+		}
+	}
 
-	// Try both database name variables that exist in Railway
-	dbName := os.Getenv("MYSQLDATABASE")
+	// Fallback to individual variables if URL doesn't work
+	dbUser := os.Getenv("MYSQL_USER") // Try with underscore
+	if dbUser == "" {
+		dbUser = os.Getenv("MYSQLUSER") // Try without underscore
+	}
+
+	dbPass := os.Getenv("MYSQL_ROOT_PASSWORD")
+	if dbPass == "" {
+		dbPass = os.Getenv("MYSQLPASSWORD")
+	}
+
+	dbHost := os.Getenv("MYSQL_HOST") // Try with underscore
+	if dbHost == "" {
+		dbHost = os.Getenv("MYSQLHOST") // Try without underscore
+	}
+
+	dbPort := os.Getenv("MYSQL_PORT") // Try with underscore
+	if dbPort == "" {
+		dbPort = os.Getenv("MYSQLPORT") // Try without underscore
+	}
+
+	dbName := os.Getenv("MYSQL_DATABASE") // Try with underscore
 	if dbName == "" {
-		dbName = os.Getenv("MYSQL_DATABASE")
+		dbName = os.Getenv("MYSQLDATABASE") // Try without underscore
 	}
 
 	// Debug logging
