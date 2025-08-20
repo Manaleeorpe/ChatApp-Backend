@@ -32,22 +32,35 @@ func Connect() {
 	var dsn string
 
 	if mysqlURL != "" {
-		log.Printf("MYSQL_URL available, using it for connection")
-		dsn = mysqlURL
+		log.Printf("MYSQL_URL available, converting to DSN format")
+		// Remove mysql:// if present
+		mysqlURL = strings.TrimPrefix(mysqlURL, "mysql://")
+
+		// Split into user:pass@host:port/dbname
+		parts := strings.Split(mysqlURL, "@")
+		if len(parts) == 2 {
+			userPass := parts[0]
+			hostPortDB := strings.Split(parts[1], "/")
+			if len(hostPortDB) == 2 {
+				dsn = fmt.Sprintf("%s@tcp(%s)/%s", userPass, hostPortDB[0], hostPortDB[1])
+			}
+		}
+		log.Printf("Formatted DSN (hiding credentials): ...@tcp(%s)/...", strings.Split(parts[1], "/")[0])
 	} else if sqlURL != "" {
 		log.Printf("SQL_URL available, converting to DSN format")
-		// Convert mysql://user:pass@host:port/dbname to user:pass@tcp(host:port)/dbname
-		sqlURL = sqlURL[8:] // Remove "mysql://"
+		// Remove mysql:// if present
+		sqlURL = strings.TrimPrefix(sqlURL, "mysql://")
+
+		// Split into user:pass@host:port/dbname
 		parts := strings.Split(sqlURL, "@")
 		if len(parts) == 2 {
 			userPass := parts[0]
-			hostPortDB := parts[1]
-			hostPortDB = strings.Replace(hostPortDB, "/", "@tcp(/", 1)
-			dsn = userPass + hostPortDB
-		} else {
-			log.Printf("Invalid SQL_URL format")
-			dsn = sqlURL
+			hostPortDB := strings.Split(parts[1], "/")
+			if len(hostPortDB) == 2 {
+				dsn = fmt.Sprintf("%s@tcp(%s)/%s", userPass, hostPortDB[0], hostPortDB[1])
+			}
 		}
+		log.Printf("Formatted DSN (hiding credentials): ...@tcp(%s)/...", strings.Split(parts[1], "/")[0])
 	} else {
 		// Fall back to individual credentials
 		dbUser := os.Getenv("MYSQLUSER")
