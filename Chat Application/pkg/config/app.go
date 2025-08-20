@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -25,29 +26,53 @@ func init() {
 func Connect() {
 	log.Println("\n=== DATABASE CONNECTION DEBUGGING ===")
 
-	// Get MySQL credentials
-	dbUser := os.Getenv("MYSQLUSER")
-	dbPass := os.Getenv("MYSQLPASSWORD")
-	dbHost := os.Getenv("MYSQLHOST")
-	dbPort := os.Getenv("MYSQLPORT")
-	dbName := os.Getenv("MYSQLDATABASE")
+	// First try using MYSQL_URL or SQL_URL if available
+	mysqlURL := os.Getenv("MYSQL_URL")
+	sqlURL := os.Getenv("SQL_URL")
+	var dsn string
 
-	// Log available variables and their status
-	log.Printf("Database Config:")
-	log.Printf("MYSQLUSER available: %v (Value: %s)", dbUser != "", dbUser)
-	log.Printf("MYSQLHOST available: %v (Value: %s)", dbHost != "", dbHost)
-	log.Printf("MYSQLPORT available: %v (Value: %s)", dbPort != "", dbPort)
-	log.Printf("MYSQLDATABASE available: %v (Value: %s)", dbName != "", dbName)
-	log.Printf("MYSQLPASSWORD available: %v", dbPass != "")
+	if mysqlURL != "" {
+		log.Printf("MYSQL_URL available, using it for connection")
+		dsn = mysqlURL
+	} else if sqlURL != "" {
+		log.Printf("SQL_URL available, converting to DSN format")
+		// Convert mysql://user:pass@host:port/dbname to user:pass@tcp(host:port)/dbname
+		sqlURL = sqlURL[8:] // Remove "mysql://"
+		parts := strings.Split(sqlURL, "@")
+		if len(parts) == 2 {
+			userPass := parts[0]
+			hostPortDB := parts[1]
+			hostPortDB = strings.Replace(hostPortDB, "/", "@tcp(/", 1)
+			dsn = userPass + hostPortDB
+		} else {
+			log.Printf("Invalid SQL_URL format")
+			dsn = sqlURL
+		}
+	} else {
+		// Fall back to individual credentials
+		dbUser := os.Getenv("MYSQLUSER")
+		dbPass := os.Getenv("MYSQLPASSWORD")
+		dbHost := os.Getenv("MYSQLHOST")
+		dbPort := os.Getenv("MYSQLPORT")
+		dbName := os.Getenv("MYSQLDATABASE")
 
-	// Check if we have all required variables
-	if dbUser == "" || dbPass == "" || dbHost == "" || dbPort == "" || dbName == "" {
-		log.Fatal("Missing required MySQL environment variables")
+		// Log available variables and their status
+		log.Printf("Database Config (Individual Variables):")
+		log.Printf("MYSQLUSER available: %v (Value: %s)", dbUser != "", dbUser)
+		log.Printf("MYSQLHOST available: %v (Value: %s)", dbHost != "", dbHost)
+		log.Printf("MYSQLPORT available: %v (Value: %s)", dbPort != "", dbPort)
+		log.Printf("MYSQLDATABASE available: %v (Value: %s)", dbName != "", dbName)
+		log.Printf("MYSQLPASSWORD available: %v", dbPass != "")
+
+		// Check if we have all required variables
+		if dbUser == "" || dbPass == "" || dbHost == "" || dbPort == "" || dbName == "" {
+			log.Fatal("Missing required MySQL environment variables and MYSQL_URL not available")
+		}
+
+		// Create connection string
+		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+			dbUser, dbPass, dbHost, dbPort, dbName)
 	}
-
-	// Create connection string
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		dbUser, dbPass, dbHost, dbPort, dbName)
 
 	log.Println("\n=== ATTEMPTING MYSQL CONNECTION ===")
 
