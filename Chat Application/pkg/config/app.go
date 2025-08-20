@@ -3,9 +3,7 @@ package config
 import (
 	"fmt"
 	"log"
-	"net/url"
 	"os"
-	"strings"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -24,27 +22,20 @@ func init() {
 }
 
 func Connect() {
-	rawURL := os.Getenv("SQL_URL")
-	if rawURL == "" {
-		log.Fatal("DATABASE_URL not set")
+	dbUser := os.Getenv("MYSQLUSER")
+	dbPass := os.Getenv("MYSQLPASSWORD")
+	dbHost := os.Getenv("MYSQLHOST")
+	dbPort := os.Getenv("MYSQLPORT")
+	dbName := os.Getenv("MYSQLDATABASE")
+
+	if dbUser == "" || dbPass == "" || dbHost == "" || dbPort == "" || dbName == "" {
+		log.Fatal("One or more required MySQL environment variables are not set")
 	}
 
-	// Parse URL
-	u, err := url.Parse(rawURL)
-	if err != nil {
-		log.Fatal("Invalid DATABASE_URL:", err)
-	}
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		dbUser, dbPass, dbHost, dbPort, dbName)
 
-	user := u.User.Username()
-	pass, _ := u.User.Password()
-	hostPort := u.Host
-	dbname := strings.TrimPrefix(u.Path, "/")
-
-	// Build DSN for jinzhu gorm
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		user, pass, hostPort, dbname)
-
-	// Open connection
+	var err error
 	db, err = gorm.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal("Failed to connect database:", err)
