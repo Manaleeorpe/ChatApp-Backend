@@ -32,13 +32,13 @@ func Connect() {
 	dbPort := os.Getenv("MYSQLPORT")
 	dbName := os.Getenv("MYSQLDATABASE")
 
-	// Log available variables (without sensitive data)
+	// Log available variables and their status
 	log.Printf("Database Config:")
-	log.Printf("User: %s", dbUser)
-	log.Printf("Host: %s", dbHost)
-	log.Printf("Port: %s", dbPort)
-	log.Printf("Database: %s", dbName)
-	log.Printf("Password available: %v", dbPass != "")
+	log.Printf("MYSQLUSER available: %v (Value: %s)", dbUser != "", dbUser)
+	log.Printf("MYSQLHOST available: %v (Value: %s)", dbHost != "", dbHost)
+	log.Printf("MYSQLPORT available: %v (Value: %s)", dbPort != "", dbPort)
+	log.Printf("MYSQLDATABASE available: %v (Value: %s)", dbName != "", dbName)
+	log.Printf("MYSQLPASSWORD available: %v", dbPass != "")
 
 	// Check if we have all required variables
 	if dbUser == "" || dbPass == "" || dbHost == "" || dbPort == "" || dbName == "" {
