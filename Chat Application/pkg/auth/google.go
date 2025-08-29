@@ -175,8 +175,9 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	log.Printf("New session set with user ID: %v", CreatedUser.ID)
 
 	// Redirect to frontend (development URL shown; change to production URL as needed)
-	http.Redirect(w, r, "http://localhost:3000/dashboard", http.StatusSeeOther)
+	http.Redirect(w, r, "https://chatapp-frontend-production-ea8c.up.railway.app/dashboard", http.StatusSeeOther)
 }
+
 
 
 
