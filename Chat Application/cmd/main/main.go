@@ -46,7 +46,7 @@ func main() {
     },
     AllowCredentials: true,
     AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-    AllowedHeaders:   []string{"*"},
+   AllowedHeaders: []string{"Origin", "Content-Type", "Accept", "Authorization"},
 })
 	handler := c.Handler(router)
 
@@ -63,6 +63,7 @@ func main() {
 	//log.Fetal(http.ListenAndServe("0.0.0.0:8080", handler))
 
 }
+
 
 
 
