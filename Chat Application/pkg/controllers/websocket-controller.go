@@ -21,7 +21,21 @@ var upgrader = websocket.Upgrader{ //upgrades http connection to websocket
 	CheckOrigin: func(r *http.Request) bool {
 		origin := r.Header.Get("Origin")
 		log.Println("Origin:", origin) // Optional: log the origin
-		return origin == "http://localhost:8080" || origin == "ws://localhost:8080" || origin == "http://localhost:3000" || origin == "ws://localhost:3000"
+		allowedOrigins := []string{
+			"http://localhost:8080",
+			"ws://localhost:8080",
+			"http://localhost:3000",
+			"ws://localhost:3000",
+			"https://chatapp-backend-production-5b08.up.railway.app",
+			"wss://chatapp-backend-production-5b08.up.railway.app",
+		}
+
+		for _, o := range allowedOrigins {
+			if origin == o {
+				return true
+			}
+		}
+		return false
 		//return true
 	}, //allows all the origins
 }
@@ -174,3 +188,4 @@ func GetIsUserOnline(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
