@@ -112,7 +112,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	utils.ParseBody(r, CreateUser)
 	user, _ := CreateUser.CreateUser()
 	res, _ := json.Marshal(user)
-	w.Header().Set("Content-Type", "pkglication/json")
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }
@@ -148,7 +148,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	db.Save(&userDetails)
 	res, _ := json.Marshal(userDetails)
-	w.Header().Set("Content-Type", "pkglication/json")
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }
@@ -171,7 +171,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 	user := models.DeleteUser(ID)
 	res, _ := json.Marshal(user)
-	w.Header().Set("Content-Type", "pkglication/json")
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }
@@ -207,4 +207,5 @@ func GetSuggestedFriends(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }
+
 
