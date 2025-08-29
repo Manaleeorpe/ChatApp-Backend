@@ -28,6 +28,7 @@ var upgrader = websocket.Upgrader{ //upgrades http connection to websocket
 			"ws://localhost:3000",
 			"https://chatapp-backend-production-5b08.up.railway.app",
 			"ws://chatapp-backend-production-5b08.up.railway.app",
+			"wss://chatapp-backend-production-5b08.up.railway.app",
 		}
 
 		for _, o := range allowedOrigins {
@@ -188,5 +189,6 @@ func GetIsUserOnline(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
 
 
