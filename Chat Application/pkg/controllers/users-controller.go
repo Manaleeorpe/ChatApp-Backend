@@ -177,9 +177,6 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetMyProfile(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
-
 	LoggedInID, error := utils.SessionUserID(r)
 
 	if error != nil {
@@ -210,3 +207,4 @@ func GetSuggestedFriends(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }
+
