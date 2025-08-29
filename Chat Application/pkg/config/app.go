@@ -42,7 +42,7 @@ func Connect() {
 			userPass := parts[0]
 			hostPortDB := strings.Split(parts[1], "/")
 			if len(hostPortDB) == 2 {
-				dsn = fmt.Sprintf("%s@tcp(%s)/%s", userPass, hostPortDB[0], hostPortDB[1])
+				dsn = fmt.Sprintf("%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", userPass, hostPortDB[0], hostPortDB[1])
 			}
 		}
 		log.Printf("Formatted DSN (hiding credentials): ...@tcp(%s)/...", strings.Split(parts[1], "/")[0])
@@ -57,7 +57,7 @@ func Connect() {
 			userPass := parts[0]
 			hostPortDB := strings.Split(parts[1], "/")
 			if len(hostPortDB) == 2 {
-				dsn = fmt.Sprintf("%s@tcp(%s)/%s", userPass, hostPortDB[0], hostPortDB[1])
+				dsn = fmt.Sprintf("%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", userPass, hostPortDB[0], hostPortDB[1])
 			}
 		}
 		log.Printf("Formatted DSN (hiding credentials): ...@tcp(%s)/...", strings.Split(parts[1], "/")[0])
@@ -108,3 +108,4 @@ func Connect() {
 func GetDB() *gorm.DB {
 	return db
 }
+
