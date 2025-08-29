@@ -119,6 +119,7 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		MaxAge:   86400 * 7, // 7 days
 		HttpOnly: true,
+		Secure: true,
 	}
 	_ = newSession.Save(r, w)
 
@@ -135,6 +136,7 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	//redirecting to the react app
 	http.Redirect(w, r, "http://localhost:3000/dashboard", http.StatusSeeOther)
 }
+
 
 
 
