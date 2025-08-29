@@ -22,7 +22,7 @@ import (
 var Store = sessions.NewCookieStore([]byte("your-secret-key"))
 
 var GoogleOauthConfig = &oauth2.Config{
-	RedirectURL:  "https://nikhilvichare.fyi/auth/google/callback",
+	RedirectURL:  "https://chatapp-backend-production-5b08.up.railway.app/auth/google/callback",
 	ClientID:     config.GoogleClientID,     //"272806201443-0hot4ej2vc1u8vof49gvmjgvh3m3f01d.apps.googleusercontent.com", //
 	ClientSecret: config.GoogleClientSecret, //.Getenv("GOOGLE_CLIENT_SECRET"), //"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",                                      //
 	Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"},
@@ -177,6 +177,7 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	// Redirect to frontend (development URL shown; change to production URL as needed)
 	http.Redirect(w, r, "http://localhost:3000/dashboard", http.StatusSeeOther)
 }
+
 
 
 
