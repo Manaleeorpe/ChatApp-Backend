@@ -40,11 +40,14 @@ func main() {
 	routes.RegisterGoogleAuthstoreRoutes(router)
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"}, // Allow all origins for testing
-		AllowCredentials: true,
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"*"},
-	})
+    AllowedOrigins:   []string{
+        "https://chatapp-frontend-production-ea8c.up.railway.app",
+        "http://localhost:3000", // add your dev URL if needed
+    },
+    AllowCredentials: true,
+    AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+    AllowedHeaders:   []string{"*"},
+})
 	handler := c.Handler(router)
 
 	port := os.Getenv("PORT")
@@ -60,5 +63,6 @@ func main() {
 	//log.Fetal(http.ListenAndServe("0.0.0.0:8080", handler))
 
 }
+
 
 
