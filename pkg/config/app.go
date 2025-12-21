@@ -16,11 +16,15 @@ var (
 )
 var GoogleClientID string
 var GoogleClientSecret string
+var RedirectURL string
+var DashboardURL string
 
 func init() {
 	_ = godotenv.Load() // Load .env file
 	GoogleClientID = os.Getenv("GOOGLE_CLIENT_ID")
 	GoogleClientSecret = os.Getenv("GOOGLE_CLIENT_SECRET")
+	DashboardURL = os.Getenv("DashboardURL")
+	RedirectURL = os.Getenv("RedirectURL")
 	//GoogleClientID = `272806201443-0hot4ej2vc1u8vof49gvmjgvh3m3f01d.apps.googleusercontent.com`
 	//GoogleClientSecret = `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`
 	log.Println("Loaded Google Client ID:", GoogleClientID)

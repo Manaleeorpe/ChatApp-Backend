@@ -17,11 +17,12 @@ import (
 
 // session store
 var Store = sessions.NewCookieStore([]byte("your-secret-key"))
+var DashboardURL = config.DashboardURL
 
 var GoogleOauthConfig = &oauth2.Config{
-	RedirectURL:  "http://localhost:8080/auth/google/callback", // "http://localhost:8080/auth/google/callback",
-	ClientID:     config.GoogleClientID,                        //"272806201443-0hot4ej2vc1u8vof49gvmjgvh3m3f01d.apps.googleusercontent.com", //
-	ClientSecret: config.GoogleClientSecret,                    //.Getenv("GOOGLE_CLIENT_SECRET"), //"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",                                      //
+	RedirectURL:  config.RedirectURL,        // "http://localhost:8080/auth/google/callback",
+	ClientID:     config.GoogleClientID,     //"272806201443-0hot4ej2vc1u8vof49gvmjgvh3m3f01d.apps.googleusercontent.com", //
+	ClientSecret: config.GoogleClientSecret, //.Getenv("GOOGLE_CLIENT_SECRET"), //"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",                                      //
 	Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"},
 	Endpoint:     google.Endpoint,
 }
@@ -146,5 +147,5 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	//http.Redirect(w, r, "http://localhost:8080/me", http.StatusSeeOther)
 
 	//redirecting to the react app
-	http.Redirect(w, r, "http://localhost:3000/dashboard", http.StatusSeeOther)
+	http.Redirect(w, r, DashboardURL, http.StatusSeeOther)
 }
