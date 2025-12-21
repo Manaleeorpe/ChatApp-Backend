@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -29,23 +30,55 @@ func init() {
 
 // Connect to the database
 func Connect() {
-	fmt.Println("Attempting to connect to the database...") // Debug log
+	log.Println("Connecting to database...")
 
-	//local
-	d, err := gorm.Open("mysql", "root:Alohomora9*@tcp(127.0.0.1:3306)/testdb?charset=utf8&parseTime=True&loc=Local")
-	//root:aDnJDdqULNszDrrzltxgCqGVSMHSNoJc@mysql.railway.internal:3306/railway
+	_ = godotenv.Load() // works locally, ignored on Railway
 
-	//"root:aDnJDdqULNszDrrzltxgCqGVSMHSNoJc@tcp(mysql.railway.internal:3306)/railway?charset=utf8&parseTime=True&loc=Local"
+	mysqlURL := os.Getenv("MYSQL_URL")
+	//sqlURL := os.Getenv("SQL_URL")
 
-	//d, err := gorm.Open("mysql", "root:aDnJDdqULNszDrrzltxgCqGVSMHSNoJc@tcp(mysql.railway.internal:3306)/railway?charset=utf8&parseTime=True&loc=Local")
-	//dsn := "root:aDnJDdqULNszDrrzltxgCqGVSMHSNoJc@tcp(gondola.proxy.rlwy.net:33106)/railway?charset=utf8&parseTime=True&loc=Local"
-	//d, err := gorm.Open("mysql", dsn)
+	var dsn string
 
-	if err != nil {
-		panic("failed to connect to the database: " + err.Error())
+	if mysqlURL != "" {
+		mysqlURL = strings.TrimPrefix(mysqlURL, "mysql://")
+		parts := strings.Split(mysqlURL, "@")
+		if len(parts) == 2 {
+			userPass := parts[0]
+			hostPortDB := strings.Split(parts[1], "/")
+			if len(hostPortDB) == 2 {
+				dsn = fmt.Sprintf(
+					"%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+					userPass,
+					hostPortDB[0],
+					hostPortDB[1],
+				)
+			}
+		}
+	} else {
+		// Local / fallback
+		dbUser := os.Getenv("MYSQLUSER")
+		dbPass := os.Getenv("MYSQLPASSWORD")
+		dbHost := os.Getenv("MYSQLHOST")
+		dbPort := os.Getenv("MYSQLPORT")
+		dbName := os.Getenv("MYSQLDATABASE")
+
+		if dbUser == "" || dbPass == "" || dbHost == "" || dbPort == "" || dbName == "" {
+			log.Fatal("Missing MySQL environment variables")
+		}
+
+		dsn = fmt.Sprintf(
+			"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+			dbUser, dbPass, dbHost, dbPort, dbName,
+		)
 	}
-	fmt.Println("Connected to database")
-	db = d
+
+	var err error
+	db, err = gorm.Open("mysql", dsn)
+	if err != nil {
+		log.Fatal("Failed to connect to DB:", err)
+	}
+
+	log.Println("✅ Database connected")
 }
 
 func GetDB() *gorm.DB {
