@@ -9,19 +9,10 @@ import (
 	"github.com/asus/ChatApp/pkg/models"
 	"github.com/asus/ChatApp/pkg/routes"
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 )
 
 func main() {
-
-	err := godotenv.Load(".env")
-
-	log.Println("GOOGLE_CLIENT_ID:", os.Getenv("GOOGLE_CLIENT_ID"))
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
 	// Initialize database connection
 	config.Connect()
 	db := config.GetDB()
