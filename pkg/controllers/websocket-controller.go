@@ -24,6 +24,12 @@ type UserStatusResponse struct {
 	LastSeen *string `json:"last_seen,omitempty"`
 }
 
+type IncomingWSMessage struct {
+	Type     string `json:"type"`
+	Content  string `json:"content,omitempty"`
+	IsTyping bool   `json:"isTyping,omitempty"`
+}
+
 var clientsMu sync.RWMutex           //used for creating mutext
 var clients = make(map[uint]*Client) //This creates a map (dictionary) to store all currently connected WebSocket clients
 
@@ -102,50 +108,60 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 			log.Println("Read error:", err)
 			break
 		}
-		//log.Printf("Message from SenderID %d to RecieverID %d: %s\n", senderID, receiverID, string(msg))
 
-		//sending the message
-		clientsMu.RLock()
-		receiverClient := clients[uint(receiverID)] //to check if the receiver is online or no
-		clientsMu.RUnlock()
-
-		if receiverClient != nil {
-			//err := receiverClient.Conn.WriteMessage(websocket.TextMessage, msg)
-			err := receiverClient.Conn.WriteMessage(websocket.TextMessage, []byte(msg))
-
-			if err != nil {
-				log.Println("Could not send message to receiver:", err)
-			}
-		}
-		//db message addition
-		message, error := SendAMessageFunc(uint(senderID), uint(receiverID), string(msg))
-
-		if error != nil {
-			log.Println("Could not send message to receiver:", err)
-		} else {
-			log.Println(message.Sender.Name, message.Content)
+		// 👇 Parse incoming JSON
+		var incoming IncomingWSMessage
+		if err := json.Unmarshal(msg, &incoming); err != nil {
+			log.Println("Invalid JSON from client:", err)
+			continue
 		}
 
-		// Optionally echo back to sender
-		/*senderClient := clients[uint(senderID)]
+		// 👇 Handle by message type
+		switch incoming.Type {
 
-		if senderClient != nil {
-			err := senderClient.Conn.WriteMessage(websocket.TextMessage, []byte("Message delivered"))
-			if err != nil {
-				log.Println("Could not send confirmation to sender:", err)
-			}
-		}*/
+		case "message":
+			// Send to receiver if online
+			clientsMu.RLock()
+			receiverClient := clients[uint(receiverID)]
+			clientsMu.RUnlock()
 
-		//send the messages to everyone excepts the sender
-		/*for id, cl := range clients {
-			if id != userID {
-				err := cl.Conn.WriteMessage(websocket.TextMessage, msg)
+			if receiverClient != nil {
+				err := receiverClient.Conn.WriteJSON(map[string]interface{}{
+					"type":    "message",
+					"content": incoming.Content,
+				})
 				if err != nil {
 					log.Println("Write error:", err)
 				}
 			}
-		}*/
 
+			// Save to DB
+			_, err := SendAMessageFunc(
+				uint(senderID),
+				uint(receiverID),
+				incoming.Content,
+			)
+			if err != nil {
+				log.Println("DB error:", err)
+			}
+
+		case "typing":
+			// Forward typing event ONLY
+			clientsMu.RLock()
+			receiverClient := clients[uint(receiverID)]
+			clientsMu.RUnlock()
+
+			if receiverClient != nil {
+				receiverClient.Conn.WriteJSON(map[string]interface{}{
+					"type":     "typing",
+					"isTyping": incoming.IsTyping,
+				})
+			}
+			//log.Println("typing received from front end", incoming.Type, incoming.IsTyping)
+
+		default:
+			log.Println("Unknown WS message type:", incoming.Type)
+		}
 	}
 }
 

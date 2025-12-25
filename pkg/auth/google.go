@@ -120,6 +120,14 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	session, _ := Store.Get(r, "session-name")
 	session.Values["user_id"] = CreatedUser.ID
 	session.Save(r, w)*/
+
+	session1, _ := Store.Get(r, "connect.sid")
+	session1.Options = &sessions.Options{
+		Path:   "/",
+		MaxAge: -1, // 👈 delete cookie
+	}
+	_ = session1.Save(r, w)
+
 	oldSession, _ := Store.Get(r, "session-name")
 	oldSession.Options.MaxAge = -1 // Mark for deletion
 	_ = oldSession.Save(r, w)
