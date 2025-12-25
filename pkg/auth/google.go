@@ -128,6 +128,13 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 	_ = session1.Save(r, w)
 
+	session2, _ := Store.Get(r, "chatapp1.sid")
+	session2.Options = &sessions.Options{
+		Path:   "/",
+		MaxAge: -1, // 👈 delete cookie
+	}
+	_ = session2.Save(r, w)
+
 	oldSession, _ := Store.Get(r, "session-name")
 	oldSession.Options.MaxAge = -1 // Mark for deletion
 	_ = oldSession.Save(r, w)
@@ -137,7 +144,7 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	newSession.Values["user_id"] = CreatedUser.ID
 	newSession.Options = &sessions.Options{
 		Path:     "/",
-		MaxAge:   86400 * 7,
+		MaxAge:   600,
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode,
 		Secure:   true,
