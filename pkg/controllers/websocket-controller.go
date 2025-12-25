@@ -37,7 +37,7 @@ var upgrader = websocket.Upgrader{ //upgrades http connection to websocket
 	CheckOrigin: func(r *http.Request) bool {
 		origin := r.Header.Get("Origin")
 		log.Println("Origin:", origin) // Optional: log the origin
-		return origin == "http://localhost:8080" || origin == "ws://localhost:8080" || origin == "http://localhost:3000" || origin == "ws://localhost:3000"
+		return origin == "http://localhost:8080" || origin == "ws://localhost:8080" || origin == "http://localhost:3000" || origin == "ws://localhost:3000" || origin == "https://chatapp-frontend-production-ea8c.up.railway.app"
 		//return true
 	}, //allows all the origins
 }
